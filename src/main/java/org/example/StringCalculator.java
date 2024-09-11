@@ -1,8 +1,10 @@
 package org.example;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class StringCalculator {
 
@@ -25,11 +27,25 @@ public class StringCalculator {
         String delimiterPattern = parts[0];
         String numbers = parts[1];
 
-        // Split the numbers using the delimiter pattern and sum them up
-        return Arrays.stream(numbers.split(delimiterPattern))
+        // Split the numbers using the delimiter pattern and check for negative numbers
+        List<Integer> numberList = Arrays.stream(numbers.split(delimiterPattern))
                 .filter(s -> !s.isEmpty()) // Filter out empty strings
-                .mapToInt(Integer::parseInt)
-                .sum();
+                .map(Integer::parseInt)
+                .toList();
+
+        // Check for negative numbers and throw an exception if any are found
+        List<Integer> negativeNumbers = numberList.stream()
+                .filter(num -> num < 0)
+                .toList();
+
+        if (!negativeNumbers.isEmpty()) {
+            String negativeNumbersString = negativeNumbers.stream()
+                    .map(String::valueOf)
+                    .collect(Collectors.joining(", "));
+            throw new IllegalArgumentException("negatives not allowed: " + negativeNumbersString);
+        }
+
+        return numberList.stream().mapToInt(Integer::intValue).sum();
     }
 
     /**
