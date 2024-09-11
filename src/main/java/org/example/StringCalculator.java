@@ -11,6 +11,10 @@ public class StringCalculator {
     // Default delimiters used if none are specified
     private static final String DEFAULT_DELIMITERS = ",|\n";
 
+    // Maximum valid number
+    private static final int MAX_NUMBER = 1000;
+
+
     /**
      * Adds the numbers provided in the string, considering possible custom delimiters.
      *
@@ -31,6 +35,7 @@ public class StringCalculator {
         List<Integer> numberList = Arrays.stream(numbers.split(delimiterPattern))
                 .filter(s -> !s.isEmpty()) // Filter out empty strings
                 .map(Integer::parseInt)
+                .filter(num -> num <= MAX_NUMBER) // Ignore numbers greater than 1000
                 .toList();
 
         // Check for negative numbers and throw an exception if any are found
@@ -46,6 +51,7 @@ public class StringCalculator {
         }
 
         return numberList.stream().mapToInt(Integer::intValue).sum();
+
     }
 
     /**

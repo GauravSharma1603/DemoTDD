@@ -42,4 +42,24 @@ public class StringCalculatorTest {
                 () -> StringCalculator.add("1,-2,3,-4"));
         assertEquals("negatives not allowed: -2, -4", exception.getMessage());
     }
+
+    @Test
+    void testIgnoreNumbersGreaterThan1000() {
+        assertEquals(2, StringCalculator.add("2,1001"));
+        assertEquals(6, StringCalculator.add("1001,2,4"));
+        assertEquals(0, StringCalculator.add("1001,1002"));
+    }
+
+    @Test
+    void testCustomDelimiterWithMultipleChars() {
+        assertEquals(6, StringCalculator.add("//[***]\n1***2***3"));
+    }
+
+    @Test
+    void testMultipleCustomDelimiters() {
+        assertEquals(6, StringCalculator.add("//[*][%]\n1*2%3"));
+    }
+
+
+
 }
