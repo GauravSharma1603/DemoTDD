@@ -19,4 +19,14 @@ public class StringCalculatorTest {
     void testTwoNumbersSeparatedByComma() {
         assertEquals(5, StringCalculator.add("3,2"));
     }
+
+    @Test
+    void testMultipleNumbers() {
+        assertEquals(6, StringCalculator.add("1,2,3"));
+    }
+
+    @Test
+    void testNewlineAsDelimiter() {
+        assertEquals(6, StringCalculator.add("1\n2,3"));
+    }
 }
