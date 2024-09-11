@@ -60,6 +60,21 @@ public class StringCalculatorTest {
         assertEquals(6, StringCalculator.add("//[*][%]\n1*2%3"));
     }
 
+    @Test
+    void testCustomDelimiterWithSpecialCharacters() {
+        assertEquals(6, StringCalculator.add("//[$&]\n1$&2$&3"));
+    }
+
+    @Test
+    void testDelimitersWithSpecialCharacters() {
+        assertEquals(6, StringCalculator.add("//[;][*]\n1;2*3"));
+    }
+
+    @Test
+    void testEmptyCustomDelimiter() {
+        assertEquals(6, StringCalculator.add("//\n1,2,3"));
+    }
+
 
 
 }

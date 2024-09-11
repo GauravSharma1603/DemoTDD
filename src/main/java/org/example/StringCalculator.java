@@ -31,7 +31,7 @@ public class StringCalculator {
         String delimiterPattern = parts[0];
         String numbers = parts[1];
 
-        // Split the numbers using the delimiter pattern and check for negative numbers
+        // Split the numbers using the delimiter pattern, filter out invalid numbers, and check for negative numbers
         List<Integer> numberList = Arrays.stream(numbers.split(delimiterPattern))
                 .filter(s -> !s.isEmpty()) // Filter out empty strings
                 .map(Integer::parseInt)
@@ -51,54 +51,66 @@ public class StringCalculator {
         }
 
         return numberList.stream().mapToInt(Integer::intValue).sum();
-
     }
 
     /**
      * Extracts the delimiters and the actual number string from the input.
+     * Handles custom delimiters if specified; otherwise, uses default delimiters.
      *
      * @param input the input string containing delimiters and numbers
      * @return a string array where the first element is the delimiter pattern and the second is the numbers string
      */
     private static String[] extractDelimitersAndNumbers(String input) {
-        // Default delimiter pattern
-        String delimiterPattern = DEFAULT_DELIMITERS;
-        String numbers = input;
-
-        // Check for custom delimiter format
         if (input.startsWith("//")) {
-            int delimiterIndex = input.indexOf("\n");
-            String delimiterPart = input.substring(2, delimiterIndex);
-            numbers = input.substring(delimiterIndex + 1);
+            return extractCustomDelimiters(input);
+        }
+        return new String[]{DEFAULT_DELIMITERS, input};
+    }
 
-            // Handle multiple custom delimiters enclosed in brackets
-            if (delimiterPart.startsWith("[")) {
-                delimiterPattern = extractMultipleDelimiters(delimiterPart);
-            } else {
-                // Single custom delimiter
-                delimiterPattern = Pattern.quote(delimiterPart);
-            }
+    /**
+     * Extracts custom delimiters from the input and returns them along with the numbers string.
+     *
+     * @param input the input string containing custom delimiters and numbers
+     * @return a string array where the first element is the regex pattern for delimiters and the second is the numbers string
+     */
+    private static String[] extractCustomDelimiters(String input) {
+        int delimiterIndex = input.indexOf("\n");
+        if (delimiterIndex == -1) {
+            // Handle case where the format is invalid (e.g., "//\n1,2,3")
+            return new String[] { DEFAULT_DELIMITERS, input };
+        }
+        String delimiterPart = input.substring(2, delimiterIndex);
+        String numbers = input.substring(delimiterIndex + 1);
+
+        // If delimiterPart is empty, use the default delimiter
+        if (delimiterPart.isEmpty()) {
+            return new String[] { DEFAULT_DELIMITERS, numbers };
         }
 
-        return new String[] { delimiterPattern, numbers };
+        String delimiterPattern = delimiterPart.startsWith("[")
+                ? extractMultipleDelimiters(delimiterPart)
+                : Pattern.quote(delimiterPart);
+
+        return new String[]{delimiterPattern, numbers};
     }
 
     /**
      * Extracts and constructs a regex pattern for multiple delimiters.
      *
-     * @param delimiterPart the part of the input string containing multiple delimiters
-     * @return a regex pattern for all the delimiters
+     * @param delimiterPart the part of the input string containing multiple delimiters, e.g., "[***][%]"
+     * @return a regex pattern that matches any of the specified delimiters, e.g., ".*?***|.*?%|"
      */
     private static String extractMultipleDelimiters(String delimiterPart) {
-        Matcher matcher = Pattern.compile("\\[(.*?)]").matcher(delimiterPart);
+        Matcher matcher = Pattern.compile("\\[(.+?)]").matcher(delimiterPart);
         StringBuilder delimiters = new StringBuilder();
 
         while (matcher.find()) {
-            // Append each custom delimiter, quoting special characters
+            // Append each custom delimiter, quoting special characters to treat them literally
             delimiters.append(Pattern.quote(matcher.group(1))).append("|");
         }
 
-        // Remove the last "|" character
+        // Remove the trailing "|" character
         return !delimiters.isEmpty() ? delimiters.substring(0, delimiters.length() - 1) : DEFAULT_DELIMITERS;
     }
+
 }
